@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Blocco globale per qualsiasi altra collezione non autorizzata
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Isolamento assoluto per utente: solo l'utente autenticato può accedere al proprio percorso privato
+    // Nessuna email o dato sensibile è hardcodato nel file (pronto per Git e GitHub)
+    match /users/{userId}/items/{itemId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

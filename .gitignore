@@ -1,0 +1,23 @@
+# Ignora tutti i file di ambiente contenenti chiavi e email private
+.env
+.env*
+!.env.example
+
+# Firebase
+.firebase
+.firebaserc
+*-debug.log
+firebase-debug.log*
+firestore-debug.log*
+
+# Dipendenze e build
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor e OS
+.DS_Store
+Thumbs.db
+.vscode
+.idea

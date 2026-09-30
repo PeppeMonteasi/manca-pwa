@@ -1,0 +1,19 @@
+{
+  "name": "Manca! - Lista Spesa Intelligente",
+  "short_name": "Manca!",
+  "description": "La tua lista della spesa intelligente per le cose che ti mancano a casa, accessibile da PC, Telefono e Tablet.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#10b981",
+  "lang": "it",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
