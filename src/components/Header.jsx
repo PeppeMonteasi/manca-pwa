@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Sun, Moon, LogIn, Download, WifiOff, Share2, Flame, RefreshCw, LogOut } from 'lucide-react';
+import { ShoppingBag, Sun, Moon, LogIn, Download, WifiOff, Share2, Flame, RefreshCw, LogOut, CreditCard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useShopping } from '../context/ShoppingContext';
+import { useCards } from '../context/CardsContext';
 import { isFirebaseConfigured } from '../firebase/config';
 import { triggerHaptic } from '../services/haptics';
 
 export const Header = ({ onOpenShare, onOpenInstall }) => {
   const { user, setIsSSOModalOpen, setIsFirebaseModalOpen, logout } = useAuth();
   const { items, isSyncing } = useShopping();
+  const { cards, setIsDrawerOpen } = useCards();
   const [theme, setTheme] = useState(() => localStorage.getItem('manca_theme') || 'dark');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [isStandalone, setIsStandalone] = useState(false);
@@ -99,6 +101,45 @@ export const Header = ({ onOpenShare, onOpenInstall }) => {
             title={isFirebaseConfigured ? "Firebase Cloud Sincronizzato" : "Configura Firebase"}
           >
             <Flame size={17} color={isFirebaseConfigured ? '#10b981' : '#f59e0b'} />
+          </button>
+
+          {/* Loyalty Cards & Coupons Button */}
+          <button 
+            type="button" 
+            className="btn-icon" 
+            onClick={() => {
+              triggerHaptic('light');
+              setIsDrawerOpen(true);
+            }} 
+            title="Sportello Carte Fedeltà & Buoni Spesa"
+            style={{
+              position: 'relative',
+              borderColor: 'rgba(16, 185, 129, 0.35)',
+              color: 'var(--primary)'
+            }}
+          >
+            <CreditCard size={18} />
+            {cards.length > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: -3,
+                right: -3,
+                minWidth: '16px',
+                height: '16px',
+                padding: '0 4px',
+                borderRadius: '99px',
+                background: 'var(--primary)',
+                color: '#fff',
+                fontSize: '0.62rem',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.25)'
+              }}>
+                {cards.length}
+              </span>
+            )}
           </button>
 
           {/* Share Button */}

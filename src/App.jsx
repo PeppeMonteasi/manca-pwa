@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ShoppingProvider, useShopping, CATEGORIES, autoDetectCategory } from './context/ShoppingContext';
+import { CardsProvider, useCards } from './context/CardsContext';
 import { Header } from './components/Header';
 import { Voicebox } from './components/Voicebox';
 import { ManualAddModal } from './components/ManualAddModal';
@@ -9,8 +10,9 @@ import { SSOModal } from './components/SSOModal';
 import { ShoppingList } from './components/ShoppingList';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import { ShareModal } from './components/ShareModal';
+import { CardsDrawer } from './components/cards/CardsDrawer';
 import { UnifiedAuthGate } from './components/UnifiedAuthGate';
-import { ShoppingBag, CheckCircle2, AlertTriangle, Plus, Tag, Hash, Sparkles } from 'lucide-react';
+import { ShoppingBag, CheckCircle2, AlertTriangle, Plus, Tag, Hash, Sparkles, CreditCard } from 'lucide-react';
 import { triggerHaptic } from './services/haptics';
 
 const SummaryStats = () => {
@@ -57,10 +59,66 @@ const SummaryStats = () => {
 export function MainContent() {
   const { addItem, addMultipleItems } = useShopping();
   const { isFirebaseModalOpen, setIsFirebaseModalOpen } = useAuth();
+  const { isDrawerOpen, setIsDrawerOpen } = useCards();
   const [isInstallOpen, setIsInstallOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isManualAddOpen, setIsManualAddOpen] = useState(false);
   
+  // Riconoscimento swipe touch orizzontale per apertura/chiusura sportello carte
+  useEffect(() => {
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    const handleTouchStart = (e) => {
+      // Ignora gesture partita dentro campi input/textarea/select o pulsanti
+      const target = e.target;
+      if (
+        ['input', 'textarea', 'select'].includes(target.tagName?.toLowerCase()) ||
+        target.closest('button') ||
+        target.closest('.interactive-no-swipe')
+      ) {
+        return;
+      }
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e) => {
+      if (!touchStartX && !touchStartY) return;
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+
+      const diffX = touchEndX - touchStartX;
+      const diffY = touchEndY - touchStartY;
+
+      touchStartX = 0;
+      touchStartY = 0;
+
+      // Movimento orizzontale significativo (soglia 60px, componente X predominante rispetto a Y)
+      if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+        if (!isDrawerOpen) {
+          // Slide verso sinistra o verso destra apre lo sportello carte
+          triggerHaptic('medium');
+          setIsDrawerOpen(true);
+        } else {
+          // Quando lo sportello è aperto, slide verso destra lo richiude
+          if (diffX > 50) {
+            triggerHaptic('light');
+            setIsDrawerOpen(false);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isDrawerOpen, setIsDrawerOpen]);
+
   // Campi per inserimento rapido con quantità e reparto modificabili prima dell'invio
   const [quickInput, setQuickInput] = useState('');
   const [quickQuantity, setQuickQuantity] = useState('1');
@@ -205,6 +263,9 @@ export function MainContent() {
         isOpen={isShareOpen} 
         onClose={() => setIsShareOpen(false)} 
       />
+
+      {/* Sportello Laterale Carte & Buoni */}
+      <CardsDrawer />
     </>
   );
 }
@@ -212,11 +273,13 @@ export function MainContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <ShoppingProvider>
-        <UnifiedAuthGate>
-          <MainContent />
-        </UnifiedAuthGate>
-      </ShoppingProvider>
+      <CardsProvider>
+        <ShoppingProvider>
+          <UnifiedAuthGate>
+            <MainContent />
+          </UnifiedAuthGate>
+        </ShoppingProvider>
+      </CardsProvider>
     </AuthProvider>
   );
 }

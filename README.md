@@ -25,6 +25,11 @@ Include **Single Sign-On (Google SSO)** con **Whitelist Personale**, sincronizza
 - 🔒 **Accesso Esclusivo & Sicuro (Whitelist Personale)**:
   - Solo l'email Google autorizzata può accedere all'interfaccia.
   - Regole crittografiche Firestore: nessun dato accessibile da utenti non autorizzati.
+- 💳 **Sportello Carte Fedeltà & Buoni Spesa (Wallet Supermercati)**:
+  - **Apertura tramite Slide / Swipe**: Scorri verso destra o verso sinistra su smartphone per aprire all'istante lo sportello laterale delle tue carte, oppure tocca l'icona della tessera nell'header.
+  - **Tessere Fedeltà Personalizzate**: Salva le carte dei tuoi supermercati (Esselunga, Coop, Conad, Lidl, Carrefour, Eurospin, Aldi, Pam, Decò, Tigros, ecc.) con colori a tema personalizzati o gradienti eleganti.
+  - **Codici a Barre Digitali**: Generazione automatica del codice a barre vettoriale ad alta leggibilità per le pistole ottiche della cassa (oppure carica una foto/screenshot del codice a barre con compressione automatica). Include vista a schermo intero ad alta luminosità con un tap.
+  - **Gestione Buoni Sconto per Supermercato**: Visualizza e registra nuovi buoni sconto (valore in € o %, minimo di spesa, data di scadenza, note) associati a ciascun supermercato, con badge e alert sulle scadenze imminenti.
 - 🎨 **Design Glassmorphism Moderno**:
   - Tema Scuro & Chiaro, animazioni con coriandoli e condivisione formattata istantanea via WhatsApp o App di sistema.
 
@@ -131,7 +136,7 @@ Apri il browser su `http://localhost:3000`.
 ---
 
 ## 🛡️ Sicurezza & Architettura
-
+ 
 - **Frontend Guard**: L'app verifica che l'account autenticato via Google coincida rigorosamente con `VITE_ALLOWED_EMAIL`. Chiunque altro riceve una schermata di blocco immediata.
 - **Backend Rules (`firestore.rules`)**:
   ```javascript
@@ -144,10 +149,45 @@ Apri il browser su `http://localhost:3000`.
       match /users/{userId}/items/{itemId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+      match /users/{userId}/cards/{cardId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      match /users/{userId}/coupons/{couponId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
   }
   ```
   Le regole di Google Cloud Firestore impediscono a chiunque di accedere a documenti che non appartengono al proprio ID utente, proteggendo il database da accessi non autorizzati.
+
+---
+
+## 🗄️ Schema Database Firestore
+
+I dati di ciascun utente sono isolati nel percorso privato `/users/{userId}/`:
+
+### 1. Collezione `cards` (Tessere Fedeltà)
+| Campo | Tipo | Descrizione |
+|---|---|---|
+| `supermercato` | String | Nome del supermercato (es. Esselunga, Coop, Conad, Lidl) |
+| `valore` | String | Numero o codice della tessera fedeltà |
+| `barcode` | String | Valore per generazione codice a barre vettoriale (`jsbarcode`) |
+| `barcodeImage` | String (Base64) | Foto opzionale del codice a barre acquisita da fotocamera/galleria |
+| `color` | String | Colore primario della carta (es. `#dc2626`) |
+| `bg` | String | Gradiente CSS di sfondo stile Apple Wallet |
+| `createdAt` | Timestamp | Data di registrazione |
+
+### 2. Collezione `coupons` (Buoni Spesa)
+| Campo | Tipo | Descrizione |
+|---|---|---|
+| `id` | String | Identificativo univoco del coupon |
+| `supermercato` | String | Supermercato associato (es. Esselunga, Coop) |
+| `valore` | String | Valore del buono (es. `10 €` o `20%`) |
+| `minimo di spesa` | String | Minimo di spesa richiesto (es. `50 €` o `Nessuno`) |
+| `data di scadenza` | String (YYYY-MM-DD) | Data di validità del buono con rilevamento scadenze |
+| `notes` | String | Note aggiuntive (es. "Su reparto ortofrutta") |
+| `used` | Boolean | Stato di utilizzo (`true` = utilizzato, `false` = attivo) |
+| `createdAt` | Timestamp | Data di registrazione |
 
 ---
 
