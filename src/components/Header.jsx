@@ -53,9 +53,9 @@ export const Header = ({ onOpenShare, onOpenInstall }) => {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
               <span>Manca!</span>
-              <span className="brand-badge">Personale</span>
+              <span className="brand-badge hide-on-mobile">Personale</span>
             </div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <div className="hide-on-mobile" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
               {isSyncing ? (
                 <><RefreshCw size={10} style={{ animation: 'spin 1s linear infinite' }} /> Sincronizzazione...</>
               ) : (
@@ -71,16 +71,16 @@ export const Header = ({ onOpenShare, onOpenInstall }) => {
             display: 'flex',
             alignItems: 'center',
             gap: '0.3rem',
-            padding: '0.2rem 0.5rem',
+            padding: '0.2rem 0.45rem',
             borderRadius: '99px',
             background: 'rgba(239, 68, 68, 0.15)',
             color: '#f87171',
-            fontSize: '0.72rem',
-            fontWeight: 600,
+            fontSize: '0.7rem',
+            fontWeight: 700,
             border: '1px solid rgba(239, 68, 68, 0.3)',
             flexShrink: 0
           }}>
-            <WifiOff size={13} /> Offline
+            <WifiOff size={12} /> <span className="hide-on-mobile">Offline</span>
           </div>
         )}
 
@@ -124,13 +124,13 @@ export const Header = ({ onOpenShare, onOpenInstall }) => {
                 position: 'absolute',
                 top: -3,
                 right: -3,
-                minWidth: '16px',
-                height: '16px',
-                padding: '0 4px',
+                minWidth: '15px',
+                height: '15px',
+                padding: '0 3px',
                 borderRadius: '99px',
                 background: 'var(--primary)',
                 color: '#fff',
-                fontSize: '0.62rem',
+                fontSize: '0.6rem',
                 fontWeight: 800,
                 display: 'flex',
                 alignItems: 'center',
@@ -165,47 +165,45 @@ export const Header = ({ onOpenShare, onOpenInstall }) => {
             {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
           </button>
 
-          {/* Install PWA Button (mostrato solo se non è già installata come app standalone) */}
+          {/* Install PWA Button (icona compatta per non rubare spazio su mobile) */}
           {!isStandalone && (
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn-icon"
               onClick={() => {
                 triggerHaptic('light');
                 onOpenInstall();
               }}
-              style={{ padding: '0.45rem 0.65rem', fontSize: '0.78rem' }}
               title="Installa applicazione"
             >
-              <Download size={14} />
-              <span style={{ display: 'none', mdDisplay: 'inline' }}>Installa</span>
+              <Download size={16} />
             </button>
           )}
 
           {/* User Account / Profile */}
           {user && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
               <img 
                 src={user.avatar} 
                 alt={user.name} 
-                style={{ width: 34, height: 34, borderRadius: '50%', border: '2px solid var(--primary)', cursor: 'pointer', objectFit: 'cover' }}
+                style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid var(--primary)', cursor: 'pointer', objectFit: 'cover' }}
                 onClick={() => {
                   triggerHaptic('light');
                   setIsSSOModalOpen(true);
                 }}
-                title={`Accesso come ${user.name}`}
+                title={`Accesso come ${user.name} (Tocca per gestire o disconnettere)`}
               />
               <button
                 type="button"
-                className="btn-icon"
+                className="btn-icon hide-on-mobile"
                 onClick={() => {
                   triggerHaptic('light');
                   logout();
                 }}
                 title="Disconnetti"
-                style={{ width: 34, height: 34, color: '#ef4444' }}
+                style={{ width: 32, height: 32, color: '#ef4444' }}
               >
-                <LogOut size={15} />
+                <LogOut size={14} />
               </button>
             </div>
           )}
