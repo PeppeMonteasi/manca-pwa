@@ -5,11 +5,13 @@ import { useShopping } from '../context/ShoppingContext';
 import { useCards } from '../context/CardsContext';
 import { isFirebaseConfigured } from '../firebase/config';
 import { triggerHaptic } from '../services/haptics';
+import { useAppUpdate } from '../services/updateService';
 
 export const Header = ({ onOpenShare, onOpenInstall }) => {
   const { user, setIsSSOModalOpen, setIsFirebaseModalOpen, logout } = useAuth();
   const { items, isSyncing } = useShopping();
   const { cards, setIsDrawerOpen } = useCards();
+  const { updateAvailable, isUpdating, applyUpdate } = useAppUpdate();
   const [theme, setTheme] = useState(() => localStorage.getItem('manca_theme') || 'dark');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [isStandalone, setIsStandalone] = useState(false);
@@ -86,6 +88,25 @@ export const Header = ({ onOpenShare, onOpenInstall }) => {
 
         {/* Actions */}
         <div className="header-actions">
+          {/* Nuova versione pronta */}
+          {updateAvailable && (
+            <button
+              type="button"
+              className="btn-icon"
+              onClick={applyUpdate}
+              title="Nuova versione pronta! Tocca per aggiornare subito"
+              style={{
+                color: '#fff',
+                background: 'var(--primary)',
+                borderColor: 'var(--primary)',
+                boxShadow: '0 0 12px rgba(16, 185, 129, 0.6)',
+                cursor: 'pointer'
+              }}
+            >
+              <RefreshCw size={15} style={{ animation: isUpdating ? 'spin 1s linear infinite' : 'none' }} />
+            </button>
+          )}
+
           {/* Firebase Status Button */}
           <button 
             type="button"

@@ -12,6 +12,7 @@ import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import { ShareModal } from './components/ShareModal';
 import { CardsDrawer } from './components/cards/CardsDrawer';
 import { UnifiedAuthGate } from './components/UnifiedAuthGate';
+import { UpdateNotification } from './components/UpdateNotification';
 import { ShoppingBag, CheckCircle2, AlertTriangle, Plus, Tag, Hash, Sparkles, CreditCard } from 'lucide-react';
 import { triggerHaptic } from './services/haptics';
 
@@ -266,6 +267,9 @@ export function MainContent() {
 
       {/* Sportello Laterale Carte & Buoni */}
       <CardsDrawer />
+
+      {/* Notifica Aggiornamento PWA / App Shell */}
+      <UpdateNotification />
     </>
   );
 }

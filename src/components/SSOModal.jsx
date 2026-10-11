@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, ShieldCheck, Chrome, Mail, Lock, User, LogOut, CheckCircle2, Flame } from 'lucide-react';
+import { X, ShieldCheck, Chrome, Mail, Lock, User, LogOut, CheckCircle2, Flame, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { isFirebaseConfigured } from '../firebase/config';
+import { forceUpdateApp } from '../services/updateService';
 
 export const SSOModal = () => {
   const { user, loginWithGoogle, loginWithEmail, logout, isSSOModalOpen, setIsSSOModalOpen, setIsFirebaseModalOpen } = useAuth();
@@ -59,6 +60,18 @@ export const SSOModal = () => {
               </button>
               <button className="btn btn-primary" style={{ flex: 1, background: '#ef4444' }} onClick={logout}>
                 <LogOut size={16} /> Disconnetti
+              </button>
+            </div>
+
+            <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+              <button 
+                type="button" 
+                className="btn btn-secondary" 
+                onClick={forceUpdateApp}
+                style={{ width: '100%', justifyContent: 'center', gap: '0.5rem', fontSize: '0.82rem', padding: '0.65rem' }}
+                title="Svuota cache locale e forza il download dell'ultima versione rilasciata"
+              >
+                <RefreshCw size={14} /> Ricarica &amp; Aggiorna App (Svuota Cache)
               </button>
             </div>
           </div>
@@ -165,6 +178,26 @@ export const SSOModal = () => {
             </form>
           </div>
         )}
+
+        <div style={{ marginTop: '1.25rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'center' }}>
+          <button
+            type="button"
+            onClick={forceUpdateApp}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-secondary)',
+              fontSize: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              cursor: 'pointer'
+            }}
+            title="Svuota cache locale e forza il reload dell'app"
+          >
+            <RefreshCw size={12} /> Problemi di visualizzazione? Forza aggiornamento
+          </button>
+        </div>
       </div>
     </div>
   );

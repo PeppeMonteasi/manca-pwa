@@ -26,13 +26,39 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
-      // Service Worker Registration
+      // Service Worker Registration con auto-aggiornamento
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js').then(reg => {
             console.log('SW registrato con successo:', reg.scope);
+            
+            // Forza controllo immediato aggiornamenti all'avvio
+            reg.update();
+
+            // Rileva quando è disponibile un nuovo Service Worker
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('Nuovo Service Worker installato, attivazione immediata...');
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  }
+                });
+              }
+            });
           }).catch(err => {
             console.log('Errore registrazione SW:', err);
+          });
+
+          // Ricarica la pagina automaticamente quando il nuovo Service Worker prende il controllo
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+              refreshing = true;
+              console.log('Nuova versione attivata: ricarico la pagina per applicare le modifiche');
+              window.location.reload();
+            }
           });
         });
       }
