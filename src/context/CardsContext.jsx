@@ -73,6 +73,9 @@ const INITIAL_COUPONS = [
     minSpend: '50 €',
     expiryDate: '2026-11-15',
     notes: 'Sconto spesa weekend',
+    code: '0400098765432',
+    codeType: 'barcode',
+    codeImage: '',
     used: false,
     createdAt: Date.now()
   },
@@ -83,6 +86,9 @@ const INITIAL_COUPONS = [
     minSpend: 'Nessuno',
     expiryDate: '2026-10-31',
     notes: 'Su reparto ortofrutta',
+    code: 'ESSE-ORTO-20',
+    codeType: 'qrcode',
+    codeImage: '',
     used: false,
     createdAt: Date.now()
   },
@@ -93,6 +99,9 @@ const INITIAL_COUPONS = [
     minSpend: '30 €',
     expiryDate: '2026-11-30',
     notes: 'Buono socio Coop',
+    code: '2900011223344',
+    codeType: 'barcode',
+    codeImage: '',
     used: false,
     createdAt: Date.now()
   }
@@ -230,6 +239,9 @@ export const CardsProvider = ({ children }) => {
       minSpend: (couponData.minSpend || '').trim() || 'Nessuno',
       expiryDate: couponData.expiryDate || '',
       notes: (couponData.notes || '').trim(),
+      code: (couponData.code || '').trim(),
+      codeType: couponData.codeType || 'barcode',
+      codeImage: couponData.codeImage || '',
       used: false,
       createdAt: Date.now()
     };

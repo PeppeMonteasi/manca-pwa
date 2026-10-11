@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Trash2, Tag, Calendar, ShoppingBag, Plus, Check, Percent, DollarSign, AlertCircle, Clock, Sparkles } from 'lucide-react';
+import { X, Trash2, Tag, Calendar, ShoppingBag, Plus, Check, Percent, DollarSign, AlertCircle, Clock, Sparkles, QrCode, Barcode, Hash, Image as ImageIcon } from 'lucide-react';
 import { useCards } from '../../context/CardsContext';
 import { BarcodeRenderer } from './BarcodeRenderer';
+import { CouponCodeModal } from './CouponCodeModal';
 import { triggerHaptic } from '../../services/haptics';
 
 export const CardDetailModal = ({ card, isOpen, onClose }) => {
@@ -13,10 +14,37 @@ export const CardDetailModal = ({ card, isOpen, onClose }) => {
   const [minSpend, setMinSpend] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [couponNotes, setCouponNotes] = useState('');
+  const [couponCode, setCouponCode] = useState('');
+  const [couponCodeType, setCouponCodeType] = useState('barcode'); // 'barcode' | 'qrcode' | 'text'
+  const [couponCodeImage, setCouponCodeImage] = useState('');
+  const [selectedCouponForCode, setSelectedCouponForCode] = useState(null);
 
   if (!isOpen || !card) return null;
 
   const coupons = getCouponsForSupermarket(card.supermarket);
+
+  const handleCouponImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 600;
+        const scale = Math.min(1, MAX_WIDTH / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.82);
+        setCouponCodeImage(compressedBase64);
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleCreateCoupon = (e) => {
     e.preventDefault();
@@ -35,13 +63,19 @@ export const CardDetailModal = ({ card, isOpen, onClose }) => {
       value: formattedVal,
       minSpend: formattedMinSpend,
       expiryDate: expiryDate || '',
-      notes: couponNotes.trim()
+      notes: couponNotes.trim(),
+      code: couponCode.trim(),
+      codeType: couponCodeType,
+      codeImage: couponCodeImage
     });
 
     setCouponVal('');
     setMinSpend('');
     setExpiryDate('');
     setCouponNotes('');
+    setCouponCode('');
+    setCouponCodeType('barcode');
+    setCouponCodeImage('');
     setIsAddingCoupon(false);
   };
 
@@ -294,6 +328,124 @@ export const CardDetailModal = ({ card, isOpen, onClose }) => {
                 </div>
               </div>
 
+              {/* Codice Buono / Barcode / QR Code */}
+              <div style={{ marginBottom: '0.85rem' }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'uppercase' }}>
+                  Codice Buono / Barcode / QR (Opzionale)
+                </label>
+                <input
+                  type="text"
+                  className="quick-add-input"
+                  value={couponCode}
+                  onChange={e => setCouponCode(e.target.value)}
+                  placeholder="Es. 0400098765432 o SCONTO10"
+                  style={{ fontSize: '0.95rem', fontFamily: 'monospace', fontWeight: 700 }}
+                />
+
+                {/* Selettore tipo formato visualizzazione codice */}
+                {couponCode.trim() && (
+                  <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.45rem' }}>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => setCouponCodeType('barcode')}
+                      style={{
+                        flex: 1,
+                        padding: '0.4rem',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        background: couponCodeType === 'barcode' ? 'var(--primary)' : 'var(--bg-main)',
+                        color: couponCodeType === 'barcode' ? '#fff' : 'var(--text-secondary)',
+                        borderRadius: '8px'
+                      }}
+                    >
+                      <Barcode size={13} style={{ marginRight: 3, verticalAlign: 'middle' }} /> Barcode
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => setCouponCodeType('qrcode')}
+                      style={{
+                        flex: 1,
+                        padding: '0.4rem',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        background: couponCodeType === 'qrcode' ? 'var(--primary)' : 'var(--bg-main)',
+                        color: couponCodeType === 'qrcode' ? '#fff' : 'var(--text-secondary)',
+                        borderRadius: '8px'
+                      }}
+                    >
+                      <QrCode size={13} style={{ marginRight: 3, verticalAlign: 'middle' }} /> QR Code
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => setCouponCodeType('text')}
+                      style={{
+                        flex: 1,
+                        padding: '0.4rem',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        background: couponCodeType === 'text' ? 'var(--primary)' : 'var(--bg-main)',
+                        color: couponCodeType === 'text' ? '#fff' : 'var(--text-secondary)',
+                        borderRadius: '8px'
+                      }}
+                    >
+                      <Hash size={13} style={{ marginRight: 3, verticalAlign: 'middle' }} /> Solo Codice
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Caricamento Foto / Screenshot Buono */}
+              <div style={{ marginBottom: '0.85rem' }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'uppercase' }}>
+                  Foto o Screenshot del Buono (Opzionale)
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <label 
+                    className="btn btn-secondary" 
+                    style={{ 
+                      padding: '0.45rem 0.85rem', 
+                      fontSize: '0.78rem', 
+                      fontWeight: 700, 
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem'
+                    }}
+                  >
+                    <ImageIcon size={14} /> Carica Immagine
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      capture="environment"
+                      onChange={handleCouponImageUpload} 
+                      style={{ display: 'none' }} 
+                    />
+                  </label>
+
+                  {couponCodeImage && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <img 
+                        src={couponCodeImage} 
+                        alt="Anteprima buono" 
+                        style={{ width: 34, height: 34, objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-color)' }} 
+                      />
+                      <button 
+                        type="button" 
+                        className="btn btn-icon" 
+                        onClick={() => setCouponCodeImage('')}
+                        style={{ width: 28, height: 28, color: '#ef4444' }}
+                        title="Rimuovi immagine"
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Note / Descrizione */}
               <div style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'uppercase' }}>
@@ -416,6 +568,39 @@ export const CardDetailModal = ({ card, isOpen, onClose }) => {
                           {coupon.notes}
                         </div>
                       )}
+
+                      {/* Tasto per visualizzare Codice a Barre / QR Code / Codice Numerico per la Cassa */}
+                      {(coupon.code || coupon.codeImage) && (
+                        <div style={{ marginTop: '0.55rem' }}>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              triggerHaptic('medium');
+                              setSelectedCouponForCode(coupon);
+                            }}
+                            className="btn"
+                            style={{
+                              padding: '0.35rem 0.7rem',
+                              fontSize: '0.78rem',
+                              fontWeight: 800,
+                              borderRadius: '8px',
+                              background: coupon.used ? 'var(--bg-main)' : 'var(--primary)',
+                              color: coupon.used ? 'var(--text-secondary)' : '#ffffff',
+                              border: coupon.used ? '1px solid var(--border-color)' : 'none',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.4rem',
+                              boxShadow: coupon.used ? 'none' : '0 2px 8px rgba(16, 185, 129, 0.35)',
+                              cursor: 'pointer'
+                            }}
+                            title="Tocca per visualizzare il codice a barre o QR per la cassa"
+                          >
+                            {coupon.codeType === 'qrcode' ? <QrCode size={14} /> : <Barcode size={14} />}
+                            <span>{coupon.code ? (coupon.code.length > 14 ? `${coupon.code.slice(0, 12)}...` : coupon.code) : 'Mostra Codice / QR'}</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Azioni Buono: Toggle Usato & Elimina */}
@@ -454,6 +639,13 @@ export const CardDetailModal = ({ card, isOpen, onClose }) => {
           )}
         </div>
       </div>
+
+      {/* Modal di Visualizzazione Codice a Barre / QR Code del Buono */}
+      <CouponCodeModal 
+        coupon={selectedCouponForCode} 
+        isOpen={Boolean(selectedCouponForCode)} 
+        onClose={() => setSelectedCouponForCode(null)} 
+      />
     </div>
   );
 };

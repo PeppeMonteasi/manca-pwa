@@ -29,7 +29,7 @@ Include **Single Sign-On (Google SSO)** con **Whitelist Personale**, sincronizza
   - **Apertura tramite Slide / Swipe**: Scorri verso destra o verso sinistra su smartphone per aprire all'istante lo sportello laterale delle tue carte, oppure tocca l'icona della tessera nell'header.
   - **Tessere Fedeltà Personalizzate**: Salva le carte dei tuoi supermercati (Esselunga, Coop, Conad, Lidl, Carrefour, Eurospin, Aldi, Pam, Decò, Tigros, ecc.) con colori a tema personalizzati o gradienti eleganti.
   - **Codici a Barre Digitali**: Generazione automatica del codice a barre vettoriale ad alta leggibilità per le pistole ottiche della cassa (oppure carica una foto/screenshot del codice a barre con compressione automatica). Include vista a schermo intero ad alta luminosità con un tap.
-  - **Gestione Buoni Sconto per Supermercato**: Visualizza e registra nuovi buoni sconto (valore in € o %, minimo di spesa, data di scadenza, note) associati a ciascun supermercato, con badge e alert sulle scadenze imminenti.
+  - **Gestione Buoni Sconto con Barcode, QR Code & Codice Numerico**: Visualizza e registra buoni sconto (valore in € o %, minimo di spesa, data di scadenza, note) associati a ciascun supermercato, con generazione automatica di **Barcode** (Code 128/EAN) o **QR Code** dinamico, visualizzazione codice alfanumerico grande, caricamento foto del buono e modalità schermo intero ad alta luminosità per il lettore ottico della cassa!
 - 🎨 **Design Glassmorphism Moderno**:
   - Tema Scuro & Chiaro, animazioni con coriandoli e condivisione formattata istantanea via WhatsApp o App di sistema.
 
@@ -186,6 +186,9 @@ I dati di ciascun utente sono isolati nel percorso privato `/users/{userId}/`:
 | `minimo di spesa` | String | Minimo di spesa richiesto (es. `50 €` o `Nessuno`) |
 | `data di scadenza` | String (YYYY-MM-DD) | Data di validità del buono con rilevamento scadenze |
 | `notes` | String | Note aggiuntive (es. "Su reparto ortofrutta") |
+| `code` | String | Codice alfanumerico o numerico del buono |
+| `codeType` | String | Formato di visualizzazione (`barcode`, `qrcode`, `text`) |
+| `codeImage` | String (Base64) | Foto o screenshot opzionale del buono sconto |
 | `used` | Boolean | Stato di utilizzo (`true` = utilizzato, `false` = attivo) |
 | `createdAt` | Timestamp | Data di registrazione |
 
