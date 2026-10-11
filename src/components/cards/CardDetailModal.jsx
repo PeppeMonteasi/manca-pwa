@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { X, Trash2, Tag, Calendar, ShoppingBag, Plus, Check, Percent, DollarSign, AlertCircle, Clock, Sparkles, QrCode, Barcode, Hash, Image as ImageIcon } from 'lucide-react';
 import { useCards } from '../../context/CardsContext';
 import { BarcodeRenderer } from './BarcodeRenderer';
@@ -7,6 +7,7 @@ import { triggerHaptic } from '../../services/haptics';
 
 export const CardDetailModal = ({ card, isOpen, onClose }) => {
   const { deleteCard, getCouponsForSupermarket, addCoupon, toggleCouponUsed, deleteCoupon } = useCards();
+  const couponFileInputRef = useRef(null);
 
   const [isAddingCoupon, setIsAddingCoupon] = useState(false);
   const [couponVal, setCouponVal] = useState('');
@@ -23,27 +24,48 @@ export const CardDetailModal = ({ card, isOpen, onClose }) => {
 
   const coupons = getCouponsForSupermarket(card.supermarket);
 
+  // Caricamento e compressione foto del coupon con compatibilità totale (iOS/Android/Desktop)
   const handleCouponImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
+    triggerHaptic('light');
+
+    // Reset valore input per consentire il ricaricamento dello stesso file
+    e.target.value = '';
+
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      try {
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 600;
+        const MAX_WIDTH = 800;
         const scale = Math.min(1, MAX_WIDTH / img.width);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.82);
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
         setCouponCodeImage(compressedBase64);
-      };
-      img.src = event.target.result;
+      } catch (err) {
+        console.warn('Fallback a FileReader base64:', err);
+        const reader = new FileReader();
+        reader.onload = (ev) => setCouponCodeImage(ev.target.result);
+        reader.readAsDataURL(file);
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
     };
-    reader.readAsDataURL(file);
+
+    img.onerror = () => {
+      const reader = new FileReader();
+      reader.onload = (ev) => setCouponCodeImage(ev.target.result);
+      reader.readAsDataURL(file);
+      URL.revokeObjectURL(objectUrl);
+    };
+
+    img.src = objectUrl;
   };
 
   const handleCreateCoupon = (e) => {
@@ -402,44 +424,49 @@ export const CardDetailModal = ({ card, isOpen, onClose }) => {
                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'uppercase' }}>
                   Foto o Screenshot del Buono (Opzionale)
                 </label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                  <label 
+                <input 
+                  ref={couponFileInputRef}
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleCouponImageUpload} 
+                  style={{ display: 'none' }} 
+                />
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+                  <button 
+                    type="button"
                     className="btn btn-secondary" 
+                    onClick={() => {
+                      triggerHaptic('light');
+                      couponFileInputRef.current?.click();
+                    }}
                     style={{ 
-                      padding: '0.45rem 0.85rem', 
-                      fontSize: '0.78rem', 
+                      padding: '0.65rem 1rem', 
+                      fontSize: '0.85rem', 
                       fontWeight: 700, 
-                      cursor: 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '0.4rem'
+                      gap: '0.45rem'
                     }}
                   >
-                    <ImageIcon size={14} /> Carica Immagine
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      capture="environment"
-                      onChange={handleCouponImageUpload} 
-                      style={{ display: 'none' }} 
-                    />
-                  </label>
+                    <ImageIcon size={16} /> {couponCodeImage ? 'Cambia Immagine' : 'Carica Foto o Screenshot'}
+                  </button>
 
                   {couponCodeImage && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                       <img 
                         src={couponCodeImage} 
                         alt="Anteprima buono" 
-                        style={{ width: 34, height: 34, objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-color)' }} 
+                        style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: '8px', border: '1.5px solid var(--border-color)' }} 
                       />
                       <button 
                         type="button" 
                         className="btn btn-icon" 
                         onClick={() => setCouponCodeImage('')}
-                        style={{ width: 28, height: 28, color: '#ef4444' }}
+                        style={{ width: 34, height: 34, color: '#ef4444' }}
                         title="Rimuovi immagine"
                       >
-                        <X size={13} />
+                        <X size={15} />
                       </button>
                     </div>
                   )}

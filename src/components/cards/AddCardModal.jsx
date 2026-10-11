@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { X, Plus, CreditCard, Palette, Camera, Check, Store } from 'lucide-react';
 import { useCards, SUPERMARKET_PRESETS, THEME_COLORS } from '../../context/CardsContext';
 import { triggerHaptic } from '../../services/haptics';
 
 export const AddCardModal = ({ isOpen, onClose }) => {
   const { addCard } = useCards();
+  const fileInputRef = useRef(null);
 
   const [supermarket, setSupermarket] = useState('Esselunga');
   const [value, setValue] = useState('');
@@ -24,30 +25,48 @@ export const AddCardModal = ({ isOpen, onClose }) => {
     setSelectedColor(matchingColor);
   };
 
-  // Caricamento e compressione foto del codice a barre
+  // Caricamento e compressione foto del codice a barre con compatibilità totale (iOS/Android/Desktop)
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     triggerHaptic('light');
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        // Ridimensionamento su canvas per mantenere le dimensioni leggere (< 100KB)
+
+    // Reset valore input per consentire il ricaricamento dello stesso file
+    e.target.value = '';
+
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      try {
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 600;
+        const MAX_WIDTH = 800;
         const scale = Math.min(1, MAX_WIDTH / img.width);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.82);
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
         setBarcodeImage(compressedBase64);
-      };
-      img.src = event.target.result;
+      } catch (err) {
+        console.warn('Fallback a FileReader base64:', err);
+        const reader = new FileReader();
+        reader.onload = (ev) => setBarcodeImage(ev.target.result);
+        reader.readAsDataURL(file);
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
     };
-    reader.readAsDataURL(file);
+
+    img.onerror = () => {
+      const reader = new FileReader();
+      reader.onload = (ev) => setBarcodeImage(ev.target.result);
+      reader.readAsDataURL(file);
+      URL.revokeObjectURL(objectUrl);
+    };
+
+    img.src = objectUrl;
   };
 
   const handleSubmit = (e) => {
@@ -189,28 +208,34 @@ export const AddCardModal = ({ isOpen, onClose }) => {
             </label>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <label 
+              <input 
+                ref={fileInputRef}
+                type="file" 
+                accept="image/*" 
+                onChange={handleImageUpload} 
+                style={{ display: 'none' }} 
+              />
+
+              <button 
+                type="button"
                 className="btn btn-secondary" 
-                style={{ cursor: 'pointer', padding: '0.65rem 1rem', fontSize: '0.85rem', flex: 1, display: 'flex', justifyContent: 'center', gap: '0.45rem' }}
+                onClick={() => {
+                  triggerHaptic('light');
+                  fileInputRef.current?.click();
+                }}
+                style={{ padding: '0.75rem 1rem', fontSize: '0.88rem', fontWeight: 700, flex: 1, display: 'flex', justifyContent: 'center', gap: '0.45rem' }}
               >
-                <Camera size={16} /> Carica foto / Scatta
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  capture="environment" 
-                  onChange={handleImageUpload} 
-                  style={{ display: 'none' }} 
-                />
-              </label>
+                <Camera size={17} /> {barcodeImage ? 'Cambia Foto' : 'Carica foto o Scatta'}
+              </button>
 
               {barcodeImage && (
                 <button
                   type="button"
                   className="btn btn-secondary"
                   onClick={() => setBarcodeImage('')}
-                  style={{ color: '#ef4444', padding: '0.65rem 0.85rem', fontSize: '0.82rem' }}
+                  style={{ color: '#ef4444', padding: '0.75rem 0.95rem', fontSize: '0.85rem', fontWeight: 700 }}
                 >
-                  Rimuovi foto
+                  Rimuovi
                 </button>
               )}
             </div>
