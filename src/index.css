@@ -515,37 +515,63 @@ select:focus {
   }
 }
 
-/* Modal Backdrop */
+/* Modal Backdrop & Card con Adattamento Dinamico per Smartphone */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 100;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   animation: fadeIn 0.2s ease;
+  overflow-y: auto;
 }
 
 .modal-card {
   width: 100%;
-  max-width: 480px;
+  max-width: 540px;
   background: var(--bg-surface);
-  border: 1px solid var(--border-color);
+  border: 1.5px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   box-shadow: var(--shadow-lg);
   animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
 }
 
-@media (max-width: 480px) {
+/* OTTIMIZZAZIONE DINAMICA E SPAZIOSA PER DISPOSITIVI MOBILI (iPhone & Android) */
+@media (max-width: 640px) {
+  .modal-backdrop {
+    padding: 0.4rem 0.35rem;
+    padding-top: calc(0.4rem + env(safe-area-inset-top));
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    align-items: flex-end; /* Bottom Sheet nativo su mobile */
+  }
+
   .modal-card {
-    padding: 1.25rem 1rem;
-    border-radius: var(--radius-md);
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 94vh !important;
+    padding: 1.35rem 1.05rem !important;
+    border-radius: 24px 24px 16px 16px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Riquadro drawer carte su mobile a tutto schermo per massima leggibilità */
+  .cards-drawer-aside {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Input e font più grandi su mobile per evitare zoom e facilitare la lettura */
+  .quick-add-input, input, select, textarea {
+    font-size: 16px !important; /* Previene l'auto-zoom di iOS */
   }
 }
 

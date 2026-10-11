@@ -178,7 +178,7 @@ export const ManualAddModal = ({ isOpen, onClose, onAddItem }) => {
           </div>
 
           {/* Note, Marca e Prezzo stimato */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '0.65rem', marginBottom: '1.25rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.65rem', marginBottom: '1.25rem' }}>
             <div>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.35rem' }}>
                 <FileText size={14} /> Note / Marca
@@ -222,11 +222,11 @@ export const ManualAddModal = ({ isOpen, onClose, onAddItem }) => {
           </div>
 
           {/* Bottoni Azione */}
-          <div style={{ display: 'flex', gap: '0.65rem' }}>
-            <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={onClose}>
+          <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+            <button type="button" className="btn btn-secondary" style={{ flex: '1 1 100px', minHeight: '48px' }} onClick={onClose}>
               Chiudi
             </button>
-            <button type="submit" className="btn btn-primary" style={{ flex: 2, fontWeight: 700 }}>
+            <button type="submit" className="btn btn-primary" style={{ flex: '2 1 180px', fontWeight: 800, minHeight: '48px' }}>
               <Plus size={18} /> Inserisci nella Spesa
             </button>
           </div>

@@ -285,8 +285,8 @@ export const Voicebox = ({ onAddMultipleItems }) => {
               </button>
             </div>
 
-            {/* Riga Inferiore: Quantità (50%) + Reparto (50%) con Input Grandi */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.25fr', gap: '0.65rem', width: '100%' }}>
+            {/* Riga Inferiore: Quantità + Reparto con Grid Dinamico per Smartphone */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.65rem', width: '100%' }}>
               {/* Quantità */}
               <div style={{ minWidth: 0 }}>
                 <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.25rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
@@ -355,29 +355,29 @@ export const Voicebox = ({ onAddMultipleItems }) => {
         </button>
       </div>
 
-      {/* Azioni Finali Grandi per Smartphone */}
-      <div style={{ display: 'flex', gap: '0.85rem' }}>
+      {/* Azioni Finali Grandi per Smartphone con Adattamento Dinamico */}
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
         <button
           type="button"
           className="btn btn-primary"
           style={{
-            flex: 2,
-            padding: '1.1rem 1.25rem',
-            fontSize: '1.12rem',
+            flex: '2 1 180px',
+            padding: '1.05rem 1.15rem',
+            fontSize: '1.08rem',
             fontWeight: 800,
-            minHeight: '58px',
+            minHeight: '56px',
             boxShadow: '0 6px 22px rgba(16, 185, 129, 0.45)',
             letterSpacing: '-0.01em'
           }}
           onClick={handleConfirmAll}
         >
-          <Check size={24} strokeWidth={2.8} /> Conferma ({parsedItems.length} {parsedItems.length === 1 ? 'Articolo' : 'Articoli'})
+          <Check size={22} strokeWidth={2.8} /> Conferma ({parsedItems.length} {parsedItems.length === 1 ? 'Articolo' : 'Articoli'})
         </button>
 
         <button
           type="button"
           className="btn btn-secondary"
-          style={{ flex: 1, padding: '1.1rem 1rem', fontSize: '0.98rem', fontWeight: 600, minHeight: '58px' }}
+          style={{ flex: '1 1 100px', padding: '1.05rem 1rem', fontSize: '0.95rem', fontWeight: 600, minHeight: '56px' }}
           onClick={() => {
             triggerHaptic('light');
             setParsedItems([]);

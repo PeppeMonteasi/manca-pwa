@@ -517,39 +517,39 @@ export const CardDetailModal = ({ card, isOpen, onClose }) => {
                     key={coupon.id}
                     style={{
                       background: coupon.used ? 'var(--bg-main)' : 'var(--bg-surface)',
-                      border: `1.5px solid ${coupon.used ? 'var(--border-color)' : 'rgba(16, 185, 129, 0.35)'}`,
-                      borderRadius: '16px',
-                      padding: '0.9rem 1rem',
+                      border: `1.5px solid ${coupon.used ? 'var(--border-color)' : 'rgba(16, 185, 129, 0.4)'}`,
+                      borderRadius: '18px',
+                      padding: '1rem',
                       display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: '0.75rem',
-                      opacity: coupon.used ? 0.6 : 1,
-                      transition: 'all 0.2s ease'
+                      flexDirection: 'column',
+                      gap: '0.65rem',
+                      opacity: coupon.used ? 0.65 : 1,
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 2px 10px rgba(0, 0, 0, 0.12)'
                     }}
                   >
-                    {/* Valore e dettagli */}
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flexWrap: 'wrap' }}>
-                        <span style={{
-                          fontSize: '1.25rem',
-                          fontWeight: 800,
-                          color: coupon.used ? 'var(--text-muted)' : 'var(--primary)',
-                          textDecoration: coupon.used ? 'line-through' : 'none'
-                        }}>
-                          {coupon.value}
-                        </span>
+                    {/* Riga 1: Valore e Badge Scadenza / Minimo */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      <span style={{
+                        fontSize: '1.35rem',
+                        fontWeight: 900,
+                        color: coupon.used ? 'var(--text-muted)' : 'var(--primary)',
+                        textDecoration: coupon.used ? 'line-through' : 'none'
+                      }}>
+                        {coupon.value}
+                      </span>
 
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
                         {coupon.minSpend && coupon.minSpend !== 'Nessuno' && (
-                          <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '6px', background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', fontWeight: 700 }}>
+                          <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.55rem', borderRadius: '6px', background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', fontWeight: 700 }}>
                             Min. {coupon.minSpend}
                           </span>
                         )}
 
                         {status && (
                           <span style={{
-                            fontSize: '0.7rem',
-                            padding: '0.15rem 0.5rem',
+                            fontSize: '0.73rem',
+                            padding: '0.2rem 0.55rem',
                             borderRadius: '6px',
                             background: status.color + '22',
                             color: status.color,
@@ -558,79 +558,90 @@ export const CardDetailModal = ({ card, isOpen, onClose }) => {
                             alignItems: 'center',
                             gap: '0.25rem'
                           }}>
-                            <Calendar size={11} /> {status.label}
+                            <Calendar size={12} /> {status.label}
                           </span>
                         )}
                       </div>
-
-                      {coupon.notes && (
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                          {coupon.notes}
-                        </div>
-                      )}
-
-                      {/* Tasto per visualizzare Codice a Barre / QR Code / Codice Numerico per la Cassa */}
-                      {(coupon.code || coupon.codeImage) && (
-                        <div style={{ marginTop: '0.55rem' }}>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              triggerHaptic('medium');
-                              setSelectedCouponForCode(coupon);
-                            }}
-                            className="btn"
-                            style={{
-                              padding: '0.35rem 0.7rem',
-                              fontSize: '0.78rem',
-                              fontWeight: 800,
-                              borderRadius: '8px',
-                              background: coupon.used ? 'var(--bg-main)' : 'var(--primary)',
-                              color: coupon.used ? 'var(--text-secondary)' : '#ffffff',
-                              border: coupon.used ? '1px solid var(--border-color)' : 'none',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.4rem',
-                              boxShadow: coupon.used ? 'none' : '0 2px 8px rgba(16, 185, 129, 0.35)',
-                              cursor: 'pointer'
-                            }}
-                            title="Tocca per visualizzare il codice a barre o QR per la cassa"
-                          >
-                            {coupon.codeType === 'qrcode' ? <QrCode size={14} /> : <Barcode size={14} />}
-                            <span>{coupon.code ? (coupon.code.length > 14 ? `${coupon.code.slice(0, 12)}...` : coupon.code) : 'Mostra Codice / QR'}</span>
-                          </button>
-                        </div>
-                      )}
                     </div>
 
-                    {/* Azioni Buono: Toggle Usato & Elimina */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
-                      <button
-                        type="button"
-                        onClick={() => toggleCouponUsed(coupon.id)}
-                        className={`preset-chip ${coupon.used ? '' : 'active'}`}
-                        style={{
-                          fontSize: '0.78rem',
-                          padding: '0.4rem 0.7rem',
-                          background: coupon.used ? 'rgba(255, 255, 255, 0.08)' : 'rgba(16, 185, 129, 0.2)',
-                          color: coupon.used ? 'var(--text-muted)' : 'var(--primary)',
-                          borderColor: coupon.used ? 'var(--border-color)' : 'var(--primary)',
-                          fontWeight: 700
-                        }}
-                        title={coupon.used ? "Segna come non usato" : "Segna come utilizzato"}
-                      >
-                        {coupon.used ? 'Usato ✓' : 'Da Usare'}
-                      </button>
+                    {/* Riga 2: Note / Condizioni se presenti */}
+                    {coupon.notes && (
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
+                        {coupon.notes}
+                      </div>
+                    )}
 
-                      <button
-                        type="button"
-                        className="btn btn-icon"
-                        onClick={() => deleteCoupon(coupon.id)}
-                        title="Elimina buono"
-                        style={{ width: 34, height: 34, color: '#ef4444' }}
-                      >
-                        <Trash2 size={15} />
-                      </button>
+                    {/* Riga 3: Tasti d'Azione Grandi e Dinamici (Barcode/QR, Toggle Usato, Elimina) */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '0.5rem',
+                      marginTop: '0.25rem',
+                      paddingTop: '0.5rem',
+                      borderTop: '1px solid var(--border-color)',
+                      flexWrap: 'wrap'
+                    }}>
+                      {(coupon.code || coupon.codeImage) ? (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            triggerHaptic('medium');
+                            setSelectedCouponForCode(coupon);
+                          }}
+                          className="btn"
+                          style={{
+                            padding: '0.45rem 0.85rem',
+                            fontSize: '0.82rem',
+                            fontWeight: 800,
+                            borderRadius: '10px',
+                            background: coupon.used ? 'var(--bg-card)' : 'var(--primary)',
+                            color: coupon.used ? 'var(--text-secondary)' : '#ffffff',
+                            border: coupon.used ? '1px solid var(--border-color)' : 'none',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.45rem',
+                            boxShadow: coupon.used ? 'none' : '0 2px 8px rgba(16, 185, 129, 0.35)',
+                            cursor: 'pointer'
+                          }}
+                          title="Tocca per visualizzare il codice a barre o QR per la cassa"
+                        >
+                          {coupon.codeType === 'qrcode' ? <QrCode size={15} /> : <Barcode size={15} />}
+                          <span>{coupon.code ? (coupon.code.length > 14 ? `${coupon.code.slice(0, 12)}...` : coupon.code) : 'Mostra Codice / QR'}</span>
+                        </button>
+                      ) : (
+                        <div />
+                      )}
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
+                        <button
+                          type="button"
+                          onClick={() => toggleCouponUsed(coupon.id)}
+                          className={`preset-chip ${coupon.used ? '' : 'active'}`}
+                          style={{
+                            fontSize: '0.82rem',
+                            padding: '0.45rem 0.85rem',
+                            background: coupon.used ? 'rgba(255, 255, 255, 0.08)' : 'rgba(16, 185, 129, 0.2)',
+                            color: coupon.used ? 'var(--text-muted)' : 'var(--primary)',
+                            borderColor: coupon.used ? 'var(--border-color)' : 'var(--primary)',
+                            fontWeight: 700
+                          }}
+                          title={coupon.used ? "Segna come non usato" : "Segna come utilizzato"}
+                        >
+                          {coupon.used ? 'Usato ✓' : 'Da Usare'}
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn btn-icon"
+                          onClick={() => deleteCoupon(coupon.id)}
+                          title="Elimina buono"
+                          style={{ width: 36, height: 36, color: '#ef4444' }}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );

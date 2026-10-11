@@ -41,6 +41,7 @@ export const CardsDrawer = () => {
 
       {/* Sportello Laterale Slide Drawer */}
       <aside 
+        className="cards-drawer-aside"
         style={{
           position: 'fixed',
           top: 0,
