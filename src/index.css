@@ -711,3 +711,138 @@ select:focus {
     transform: scale(0.9);
   }
 }
+
+/* ==========================================================================
+   PROGRAMMA DELLA SETTIMANA (MEAL PLAN TABLE & DRAWER)
+   ========================================================================== */
+.meal-plan-table-container {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.meal-plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  table-layout: fixed;
+}
+
+.meal-plan-table th {
+  padding: 0.75rem 0.65rem;
+  background: var(--bg-card);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.meal-plan-table td {
+  padding: 0.65rem 0.6rem;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+  font-size: 0.82rem;
+}
+
+.meal-plan-table tr:last-child td {
+  border-bottom: none;
+}
+
+.meal-plan-table tr.row-today {
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.meal-plan-table tr.row-today td.cell-day {
+  border-left: 3px solid var(--primary);
+}
+
+.cell-day {
+  background: rgba(255, 255, 255, 0.015);
+  font-weight: 600;
+  border-right: 1px solid var(--border-color);
+}
+
+.cell-meal {
+  cursor: pointer;
+  border-right: 1px solid var(--border-color);
+  transition: background 0.15s ease, transform 0.1s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.cell-meal:last-child {
+  border-right: none;
+}
+
+.cell-meal:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cell-meal:active {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.meal-content-box {
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.meal-dish-text {
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.meal-placeholder {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  border: 1px dashed var(--border-color);
+  padding: 0.25rem 0.45rem;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.cell-meal:hover .meal-placeholder {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+@media (max-width: 640px) {
+  .meal-plan-drawer-aside {
+    max-width: 100vw !important;
+    width: 100% !important;
+  }
+  
+  .meal-plan-table th {
+    padding: 0.6rem 0.4rem;
+    font-size: 0.7rem;
+  }
+
+  .meal-plan-table td {
+    padding: 0.55rem 0.4rem;
+  }
+
+  .meal-dish-text {
+    font-size: 0.78rem;
+  }
+
+  .meal-content-box {
+    min-height: 44px;
+  }
+}

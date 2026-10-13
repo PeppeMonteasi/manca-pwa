@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ShoppingProvider, useShopping, CATEGORIES, autoDetectCategory } from './context/ShoppingContext';
 import { CardsProvider, useCards } from './context/CardsContext';
+import { MealPlanProvider, useMealPlan } from './context/MealPlanContext';
 import { Header } from './components/Header';
 import { Voicebox } from './components/Voicebox';
 import { ManualAddModal } from './components/ManualAddModal';
@@ -11,6 +12,7 @@ import { ShoppingList } from './components/ShoppingList';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import { ShareModal } from './components/ShareModal';
 import { CardsDrawer } from './components/cards/CardsDrawer';
+import { MealPlanDrawer } from './components/meals/MealPlanDrawer';
 import { UnifiedAuthGate } from './components/UnifiedAuthGate';
 import { UpdateNotification } from './components/UpdateNotification';
 import { ShoppingBag, CheckCircle2, AlertTriangle, Plus, Tag, Hash, Sparkles, CreditCard } from 'lucide-react';
@@ -61,11 +63,14 @@ export function MainContent() {
   const { addItem, addMultipleItems } = useShopping();
   const { isFirebaseModalOpen, setIsFirebaseModalOpen } = useAuth();
   const { isDrawerOpen, setIsDrawerOpen } = useCards();
+  const { isMealPlanOpen, setIsMealPlanOpen } = useMealPlan();
   const [isInstallOpen, setIsInstallOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isManualAddOpen, setIsManualAddOpen] = useState(false);
   
-  // Riconoscimento swipe touch orizzontale per apertura/chiusura sportello carte
+  // Riconoscimento swipe touch orizzontale:
+  // - Slide verso SINISTRA: apre il Programma della Settimana (o chiude le carte)
+  // - Slide verso DESTRA: apre lo Sportello Carte (o chiude il menu settimana)
   useEffect(() => {
     let touchStartX = 0;
     let touchStartY = 0;
@@ -97,15 +102,27 @@ export function MainContent() {
 
       // Movimento orizzontale significativo (soglia 60px, componente X predominante rispetto a Y)
       if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
-        if (!isDrawerOpen) {
-          // Slide verso sinistra o verso destra apre lo sportello carte
-          triggerHaptic('medium');
-          setIsDrawerOpen(true);
-        } else {
-          // Quando lo sportello è aperto, slide verso destra lo richiude
-          if (diffX > 50) {
+        if (diffX < -60) {
+          // Slide verso SINISTRA
+          if (isDrawerOpen) {
+            // Chiude carte
             triggerHaptic('light');
             setIsDrawerOpen(false);
+          } else if (!isMealPlanOpen) {
+            // Apre Menu Settimanale
+            triggerHaptic('medium');
+            setIsMealPlanOpen(true);
+          }
+        } else if (diffX > 60) {
+          // Slide verso DESTRA
+          if (isMealPlanOpen) {
+            // Chiude Menu Settimanale
+            triggerHaptic('light');
+            setIsMealPlanOpen(false);
+          } else if (!isDrawerOpen) {
+            // Apre Sportello Carte & Buoni
+            triggerHaptic('medium');
+            setIsDrawerOpen(true);
           }
         }
       }
@@ -118,7 +135,7 @@ export function MainContent() {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isDrawerOpen, setIsDrawerOpen]);
+  }, [isDrawerOpen, setIsDrawerOpen, isMealPlanOpen, setIsMealPlanOpen]);
 
   // Campi per inserimento rapido con quantità e reparto modificabili prima dell'invio
   const [quickInput, setQuickInput] = useState('');
@@ -265,8 +282,11 @@ export function MainContent() {
         onClose={() => setIsShareOpen(false)} 
       />
 
-      {/* Sportello Laterale Carte & Buoni */}
+      {/* Sportello Laterale Carte & Buoni (destra) */}
       <CardsDrawer />
+
+      {/* Sportello Laterale Programma della Settimana (sinistra) */}
+      <MealPlanDrawer />
 
       {/* Notifica Aggiornamento PWA / App Shell */}
       <UpdateNotification />
@@ -278,11 +298,13 @@ export default function App() {
   return (
     <AuthProvider>
       <CardsProvider>
-        <ShoppingProvider>
-          <UnifiedAuthGate>
-            <MainContent />
-          </UnifiedAuthGate>
-        </ShoppingProvider>
+        <MealPlanProvider>
+          <ShoppingProvider>
+            <UnifiedAuthGate>
+              <MainContent />
+            </UnifiedAuthGate>
+          </ShoppingProvider>
+        </MealPlanProvider>
       </CardsProvider>
     </AuthProvider>
   );

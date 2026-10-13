@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Sun, Moon, LogIn, Download, WifiOff, Share2, Flame, RefreshCw, LogOut, CreditCard } from 'lucide-react';
+import { ShoppingBag, Sun, Moon, LogIn, Download, WifiOff, Share2, Flame, RefreshCw, CreditCard, UtensilsCrossed } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useShopping } from '../context/ShoppingContext';
 import { useCards } from '../context/CardsContext';
+import { useMealPlan } from '../context/MealPlanContext';
 import { isFirebaseConfigured } from '../firebase/config';
 import { triggerHaptic } from '../services/haptics';
 import { useAppUpdate } from '../services/updateService';
@@ -11,6 +12,7 @@ export const Header = ({ onOpenShare, onOpenInstall }) => {
   const { user, setIsSSOModalOpen, setIsFirebaseModalOpen, logout } = useAuth();
   const { items, isSyncing } = useShopping();
   const { cards, setIsDrawerOpen } = useCards();
+  const { setIsMealPlanOpen } = useMealPlan();
   const { updateAvailable, isUpdating, applyUpdate } = useAppUpdate();
   const [theme, setTheme] = useState(() => localStorage.getItem('manca_theme') || 'dark');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -124,6 +126,23 @@ export const Header = ({ onOpenShare, onOpenInstall }) => {
             <Flame size={17} color={isFirebaseConfigured ? '#10b981' : '#f59e0b'} />
           </button>
 
+          {/* Menu Settimana Pasti Button */}
+          <button 
+            type="button" 
+            className="btn-icon" 
+            onClick={() => {
+              triggerHaptic('light');
+              setIsMealPlanOpen(true);
+            }} 
+            title="Menu della Settimana (Pranzi & Cene)"
+            style={{
+              borderColor: 'rgba(245, 158, 11, 0.35)',
+              color: '#f59e0b'
+            }}
+          >
+            <UtensilsCrossed size={17} />
+          </button>
+
           {/* Loyalty Cards & Coupons Button */}
           <button 
             type="button" 
@@ -203,7 +222,7 @@ export const Header = ({ onOpenShare, onOpenInstall }) => {
 
           {/* User Account / Profile */}
           {user && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
               <img 
                 src={user.avatar} 
                 alt={user.name} 
@@ -212,20 +231,8 @@ export const Header = ({ onOpenShare, onOpenInstall }) => {
                   triggerHaptic('light');
                   setIsSSOModalOpen(true);
                 }}
-                title={`Accesso come ${user.name} (Tocca per gestire o disconnettere)`}
+                title={`Accesso come ${user.name} (Tocca per gestire profilo)`}
               />
-              <button
-                type="button"
-                className="btn-icon hide-on-mobile"
-                onClick={() => {
-                  triggerHaptic('light');
-                  logout();
-                }}
-                title="Disconnetti"
-                style={{ width: 32, height: 32, color: '#ef4444' }}
-              >
-                <LogOut size={14} />
-              </button>
             </div>
           )}
         </div>
