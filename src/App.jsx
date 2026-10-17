@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ShoppingProvider, useShopping, CATEGORIES, autoDetectCategory } from './context/ShoppingContext';
 import { CardsProvider, useCards } from './context/CardsContext';
 import { MealPlanProvider, useMealPlan } from './context/MealPlanContext';
-import { DietProvider } from './context/DietContext';
+import { DishesProvider } from './context/DishesContext';
 import { Header } from './components/Header';
 import { Voicebox } from './components/Voicebox';
 import { ManualAddModal } from './components/ManualAddModal';
@@ -313,13 +313,13 @@ export default function App() {
     <AuthProvider>
       <CardsProvider>
         <MealPlanProvider>
-          <DietProvider>
+          <DishesProvider>
             <ShoppingProvider>
               <UnifiedAuthGate>
                 <AppContent />
               </UnifiedAuthGate>
             </ShoppingProvider>
-          </DietProvider>
+          </DishesProvider>
         </MealPlanProvider>
       </CardsProvider>
     </AuthProvider>

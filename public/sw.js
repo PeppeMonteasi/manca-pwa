@@ -1,4 +1,4 @@
-const CACHE_NAME = 'manca-pwa-v14';
+const CACHE_NAME = 'manca-pwa-v15';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

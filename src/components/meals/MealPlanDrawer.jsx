@@ -154,10 +154,10 @@ export const MealPlanDrawer = ({ onOpenDietPlanner }) => {
           }}>
             <div style={{ minWidth: 0 }}>
               <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Sparkles size={14} color="var(--primary)" /> Dieta Mediterranea &amp; Macro
+                <Sparkles size={14} color="var(--primary)" /> Generatore Pasti &amp; Ricettario
               </div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                Genera piano con porzioni al grammo su misura
+                Scegli o genera dai tuoi piatti preferiti
               </div>
             </div>
             <button

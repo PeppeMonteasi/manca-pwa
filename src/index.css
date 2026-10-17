@@ -1231,6 +1231,84 @@ select:focus {
   color: var(--primary);
 }
 
+/* Stili Piatti & Pasti del Giorno */
+.day-meal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.day-meal-header {
+  padding: 0.9rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.day-meal-body {
+  padding: 1rem;
+}
+
+.ingredient-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.dish-catalog-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  transition: all 0.15s ease;
+}
+
+.dish-catalog-card:hover {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.category-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.category-filter-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+}
+
+.category-filter-chip.active {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: var(--primary);
+  font-weight: 700;
+}
+
 @media (max-width: 640px) {
   .diet-page-container {
     padding: 0.75rem;
@@ -1245,4 +1323,5 @@ select:focus {
     grid-template-columns: 1fr;
   }
 }
+
 
