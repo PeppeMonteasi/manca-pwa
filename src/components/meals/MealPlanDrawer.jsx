@@ -4,7 +4,7 @@ import { useMealPlan, DAYS_OF_WEEK } from '../../context/MealPlanContext';
 import { EditMealModal } from './EditMealModal';
 import { triggerHaptic } from '../../services/haptics';
 
-export const MealPlanDrawer = () => {
+export const MealPlanDrawer = ({ onOpenDietPlanner }) => {
   const { 
     mealPlan, 
     isMealPlanOpen, 
@@ -137,6 +137,43 @@ export const MealPlanDrawer = () => {
             </button>
           </div>
         </div>
+
+        {/* Banner Lancio Motore Dieta Mediterranea & Calcolo Macro */}
+        {onOpenDietPlanner && (
+          <div style={{
+            margin: '0.65rem 1rem 0.4rem 1rem',
+            padding: '0.75rem 0.9rem',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%)',
+            border: '1px solid rgba(16, 185, 129, 0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.65rem',
+            flexShrink: 0
+          }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <Sparkles size={14} color="var(--primary)" /> Dieta Mediterranea &amp; Macro
+              </div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Genera piano con porzioni al grammo su misura
+              </div>
+            </div>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => {
+                triggerHaptic('medium');
+                setIsMealPlanOpen(false);
+                onOpenDietPlanner();
+              }}
+              style={{ fontSize: '0.75rem', padding: '0.45rem 0.75rem', whiteSpace: 'nowrap', fontWeight: 700, flexShrink: 0 }}
+            >
+              Apri Pagina
+            </button>
+          </div>
+        )}
 
         {/* Barra di gestione rapida */}
         <div style={{

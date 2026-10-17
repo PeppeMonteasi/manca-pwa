@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ShoppingProvider, useShopping, CATEGORIES, autoDetectCategory } from './context/ShoppingContext';
 import { CardsProvider, useCards } from './context/CardsContext';
 import { MealPlanProvider, useMealPlan } from './context/MealPlanContext';
+import { DietProvider } from './context/DietContext';
 import { Header } from './components/Header';
 import { Voicebox } from './components/Voicebox';
 import { ManualAddModal } from './components/ManualAddModal';
@@ -13,6 +14,7 @@ import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import { ShareModal } from './components/ShareModal';
 import { CardsDrawer } from './components/cards/CardsDrawer';
 import { MealPlanDrawer } from './components/meals/MealPlanDrawer';
+import { DietPlannerScreen } from './components/diet/DietPlannerScreen';
 import { UnifiedAuthGate } from './components/UnifiedAuthGate';
 import { UpdateNotification } from './components/UpdateNotification';
 import { ShoppingBag, CheckCircle2, AlertTriangle, Plus, Tag, Hash, Sparkles, CreditCard } from 'lucide-react';
@@ -59,7 +61,7 @@ const SummaryStats = () => {
   );
 };
 
-export function MainContent() {
+export function MainContent({ onOpenDietPlanner }) {
   const { addItem, addMultipleItems } = useShopping();
   const { isFirebaseModalOpen, setIsFirebaseModalOpen } = useAuth();
   const { isDrawerOpen, setIsDrawerOpen } = useCards();
@@ -288,7 +290,7 @@ export function MainContent() {
       <CardsDrawer />
 
       {/* Sportello Laterale Programma della Settimana (sinistra) */}
-      <MealPlanDrawer />
+      <MealPlanDrawer onOpenDietPlanner={onOpenDietPlanner} />
 
       {/* Notifica Aggiornamento PWA / App Shell */}
       <UpdateNotification />
@@ -296,16 +298,28 @@ export function MainContent() {
   );
 }
 
+function AppContent() {
+  const [currentScreen, setCurrentScreen] = useState('main'); // 'main' | 'diet-planner'
+
+  if (currentScreen === 'diet-planner') {
+    return <DietPlannerScreen onBack={() => setCurrentScreen('main')} />;
+  }
+
+  return <MainContent onOpenDietPlanner={() => setCurrentScreen('diet-planner')} />;
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <CardsProvider>
         <MealPlanProvider>
-          <ShoppingProvider>
-            <UnifiedAuthGate>
-              <MainContent />
-            </UnifiedAuthGate>
-          </ShoppingProvider>
+          <DietProvider>
+            <ShoppingProvider>
+              <UnifiedAuthGate>
+                <AppContent />
+              </UnifiedAuthGate>
+            </ShoppingProvider>
+          </DietProvider>
         </MealPlanProvider>
       </CardsProvider>
     </AuthProvider>
