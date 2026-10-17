@@ -63,8 +63,27 @@ const COMPOUND_EXCEPTIONS = [
   'frutta e verdura', 'carne e pesce'
 ];
 
+// Preposizioni e connettori che legano un articolo al nome precedente (NON devono spezzare)
+const PREPOSITIONS = new Set([
+  'di', 'd', "d'", 'd’', 'a', 'da', 'in', 'con', 'su', 'per', 'tra', 'fra',
+  'senza', 'tipo', 'marca', 'gusto', 'al', 'allo', 'alla', 'ai', 'agli', 'alle',
+  'del', 'dello', 'della', 'dei', 'degli', 'delle', 'nel', 'nello', 'nella', 'nei', 'negli', 'nelle'
+]);
+
+// Articoli determinativi e indeterminativi da trattare come separatori quando dettati senza virgola
+const ARTICLES = new Set([
+  'il', 'lo', 'la', "l'", 'l’', 'i', 'gli', 'le',
+  'un', 'uno', 'una', "un'", 'un’'
+]);
+
+const NUM_WORDS = new Set([
+  'due', 'tre', 'quattro', 'cinque', 'sei', 'sette', 'otto', 'nove', 'dieci',
+  'dodici', 'mezzo', 'mezza'
+]);
+
 /**
  * Divide la trascrizione vocale in segmenti distinti di prodotti
+ * Utilizza virgole, connettori ("e", "poi") e articoli determinativi/indeterminativi come separatori
  */
 function splitSpeechIntoItemSegments(rawText) {
   let text = rawText.trim();
@@ -84,22 +103,64 @@ function splitSpeechIntoItemSegments(rawText) {
     }
   });
 
-  // Sostituisci i connettori di lista con un delimitatore unico pipe |
+  // 1. Sostituisci i connettori di lista con un delimitatore unico pipe |
   text = text.replace(/,\s*(?:e\s+poi|e\s+anche|e\s+pure|ed\s+anche|e|ed|poi)\s+/gi, '|');
   text = text.replace(/\b(?:e\s+poi|e\s+anche|e\s+pure|ed\s+anche|poi|inoltre|oltre\s+a)\b/gi, '|');
   text = text.replace(/[,;\n]+/g, '|');
   text = text.replace(/\s+\b(?:e|ed)\s+/gi, '|');
 
-  // Ripristina eccezioni
-  placeholders.forEach(({ placeholder, original }) => {
-    text = text.replace(new RegExp(placeholder, 'g'), original);
-  });
+  // 2. Suddivisione avanzata per articoli (il, lo, la, l', i, gli, le, un, una, ecc.) e numeri
+  // Quando l'utente detta senza virgole: "il latte la pasta i pomodori le uova"
+  const subBlocks = text.split('|');
+  const refinedBlocks = [];
 
-  // Dividi e filtra i segmenti vuoti
-  const segments = text
-    .split('|')
-    .map(s => s.trim())
-    .filter(s => s.length > 1);
+  for (const block of subBlocks) {
+    const trimmedBlock = block.trim();
+    if (!trimmedBlock) continue;
+
+    const tokens = trimmedBlock.split(/\s+/);
+    let currentSegment = [];
+    
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+      const tokenClean = token.toLowerCase().replace(/[^a-z0-9'’]/gi, '');
+      const prevToken = i > 0 ? tokens[i - 1].toLowerCase().replace(/[^a-z'’]/gi, '') : '';
+
+      const isArticle = ARTICLES.has(tokenClean) || 
+                        token.toLowerCase().startsWith("l'") || 
+                        token.toLowerCase().startsWith("l’") ||
+                        token.toLowerCase().startsWith("un'") || 
+                        token.toLowerCase().startsWith("un’");
+
+      const isNumber = NUM_WORDS.has(tokenClean) || /^\d+$/.test(tokenClean);
+
+      // È un separatore se:
+      // - è un articolo o un numero che introduce un nuovo articolo
+      // - abbiamo già token accumulati nel segmento corrente
+      // - il token precedente NON è una preposizione (es: "con le zucchine", "pasta per la pizza", "succo di arancia")
+      const isSeparator = (isArticle || isNumber) && currentSegment.length > 0 && !PREPOSITIONS.has(prevToken);
+
+      if (isSeparator) {
+        refinedBlocks.push(currentSegment.join(' '));
+        currentSegment = [token];
+      } else {
+        currentSegment.push(token);
+      }
+    }
+
+    if (currentSegment.length > 0) {
+      refinedBlocks.push(currentSegment.join(' '));
+    }
+  }
+
+  // Ripristina eccezioni
+  const segments = refinedBlocks.map(seg => {
+    let s = seg;
+    placeholders.forEach(({ placeholder, original }) => {
+      s = s.replace(new RegExp(placeholder, 'g'), original);
+    });
+    return s.trim();
+  }).filter(s => s.length > 1);
 
   return segments.length > 0 ? segments : [rawText.trim()];
 }
@@ -170,8 +231,9 @@ function parseSingleItem(segment, globalContext = {}) {
     text = text.replace(qtyMatch[0], '');
   }
 
-  // Pulisci preposizioni
-  let cleanName = text.replace(/^(di|del|della|delle|dei|degli|da|un po' di|un po di|il|lo|la|i|gli|le)\s+/i, '').trim();
+  // Pulisci preposizioni e articoli residui a inizio nome
+  let cleanName = text.replace(/^(di|del|della|delle|dei|degli|da|un po' di|un po di|il|lo|la|i|gli|le|un|uno|una)\s+/i, '');
+  cleanName = cleanName.replace(/^(l'|l’|un'|un’)/i, '').trim();
 
   if (cleanName.length > 0) {
     cleanName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);

@@ -101,28 +101,30 @@ export function MainContent() {
       touchStartY = 0;
 
       // Movimento orizzontale significativo (soglia 60px, componente X predominante rispetto a Y)
+      // Slide verso SINISTRA -> va verso DESTRA (apre Carte & Buoni)
+      // Slide verso DESTRA -> va verso SINISTRA (apre Menu della Settimana)
       if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
         if (diffX < -60) {
-          // Slide verso SINISTRA
-          if (isDrawerOpen) {
-            // Chiude carte
-            triggerHaptic('light');
-            setIsDrawerOpen(false);
-          } else if (!isMealPlanOpen) {
-            // Apre Menu Settimanale
-            triggerHaptic('medium');
-            setIsMealPlanOpen(true);
-          }
-        } else if (diffX > 60) {
-          // Slide verso DESTRA
+          // Slide verso SINISTRA (va a DESTRA)
           if (isMealPlanOpen) {
-            // Chiude Menu Settimanale
+            // Chiude il menu della settimana
             triggerHaptic('light');
             setIsMealPlanOpen(false);
           } else if (!isDrawerOpen) {
-            // Apre Sportello Carte & Buoni
+            // Apre lo Sportello Carte & Buoni
             triggerHaptic('medium');
             setIsDrawerOpen(true);
+          }
+        } else if (diffX > 60) {
+          // Slide verso DESTRA (va a SINISTRA)
+          if (isDrawerOpen) {
+            // Chiude lo sportello carte
+            triggerHaptic('light');
+            setIsDrawerOpen(false);
+          } else if (!isMealPlanOpen) {
+            // Apre il Programma della Settimana
+            triggerHaptic('medium');
+            setIsMealPlanOpen(true);
           }
         }
       }
